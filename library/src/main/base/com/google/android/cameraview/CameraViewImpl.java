@@ -16,6 +16,7 @@
 
 package com.google.android.cameraview;
 
+import android.graphics.ImageFormat;
 import android.view.View;
 
 import java.util.Set;
@@ -77,6 +78,7 @@ abstract class CameraViewImpl {
 
         void onPictureTaken(byte[] data);
 
+        void onFrameReceived(byte[] data, int fmt);
     }
 
 }

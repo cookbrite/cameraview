@@ -19,6 +19,7 @@ package com.google.android.cameraview;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.ImageFormat;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -448,6 +449,13 @@ public class CameraView extends FrameLayout {
             }
         }
 
+        @Override
+        public void onFrameReceived(byte[] data, int fmt) {
+            for (Callback callback : mCallbacks) {
+                callback.onFrameReceived(data, fmt);
+            }
+        }
+
         public void reserveRequestLayoutOnOpen() {
             mRequestLayoutOnOpen = true;
         }
@@ -533,6 +541,9 @@ public class CameraView extends FrameLayout {
          * @param data       JPEG data.
          */
         public void onPictureTaken(CameraView cameraView, byte[] data) {
+        }
+
+        public void onFrameReceived(byte[] data, int fmt) {
         }
     }
 

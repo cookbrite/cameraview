@@ -16,11 +16,15 @@
 
 package com.google.android.cameraview;
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
+import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Build;
 import android.support.v4.util.SparseArrayCompat;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.io.IOException;
@@ -301,7 +305,18 @@ class Camera1 extends CameraViewImpl {
         }
         adjustCameraParameters();
         mCamera.setDisplayOrientation(calcCameraRotation(mDisplayOrientation));
+        setPreviewCallback();
         mCallback.onCameraOpened();
+    }
+
+    private void setPreviewCallback() {
+        mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+            @Override
+            public void onPreviewFrame(byte[] data, Camera camera) {
+                Log.d(TAG, "Cam1: frame received");
+                mCallback.onFrameReceived(data, ImageFormat.NV21);
+            }
+        });
     }
 
     private AspectRatio chooseAspectRatio() {
@@ -330,6 +345,7 @@ class Camera1 extends CameraViewImpl {
                 mCamera.stopPreview();
             }
             mCameraParameters.setPreviewSize(size.getWidth(), size.getHeight());
+            mCameraParameters.setPreviewFormat(ImageFormat.NV21);
             mCameraParameters.setPictureSize(pictureSize.getWidth(), pictureSize.getHeight());
             mCameraParameters.setRotation(calcCameraRotation(mDisplayOrientation));
             setAutoFocusInternal(mAutoFocus);
