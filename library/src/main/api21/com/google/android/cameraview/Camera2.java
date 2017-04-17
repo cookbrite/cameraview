@@ -31,6 +31,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Surface;
@@ -441,22 +442,40 @@ class Camera2 extends CameraViewImpl {
                 ImageFormat.JPEG, /* maxImages */ 2);
         mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, null);
 
-        mFrameReader = ImageReader.newInstance(1280, 720, ImageFormat.YUV_420_888, 1);
+        Size optimalForPreview = chooseOptimalSize();
+
+        mFrameReader = ImageReader.newInstance(optimalForPreview.getWidth(),
+                optimalForPreview.getHeight(), ImageFormat.YUV_420_888, 1);
         mFrameReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
             public void onImageAvailable(ImageReader reader) {
                 Log.d(TAG, "image available");
                 Image image = reader.acquireNextImage();
 
-                Image.Plane[] planes = image.getPlanes();
-
-                byte[] data = null;//planes[0].getBuffer().array().clone();
+                byte[] data = getByteDataFromImageReader(image);
 
                 image.close();
-                //TODO call a callback
-                mCallback.onFrameReceived(data, ImageFormat.YUV_420_888);
+
+                mCallback.onFrameReceived(data, reader.getImageFormat(), reader.getWidth(), reader.getHeight());
             }
         }, null);
+    }
+
+    /**
+     * Extract the byte data from the ImageReader
+     * @param image
+     * @return byte array or null if failed
+     */
+    @Nullable
+    private byte[] getByteDataFromImageReader(@NonNull Image image) {
+        byte[] data = null;
+        Image.Plane[] planes = image.getPlanes();
+        if (planes.length > 0) {
+            ByteBuffer buffer = planes[0].getBuffer();
+            data = new byte[buffer.remaining()];
+            buffer.get(data);
+        }
+        return data;
     }
 
     /**

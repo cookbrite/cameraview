@@ -314,7 +314,12 @@ class Camera1 extends CameraViewImpl {
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
                 Log.d(TAG, "Cam1: frame received");
-                mCallback.onFrameReceived(data, ImageFormat.NV21);
+                final Camera.Parameters params = camera.getParameters();
+                if (params == null) {
+                    return;
+                }
+                final Camera.Size previewSize = params.getPreviewSize();
+                mCallback.onFrameReceived(data, params.getPreviewFormat(), previewSize.width, previewSize.height);
             }
         });
     }

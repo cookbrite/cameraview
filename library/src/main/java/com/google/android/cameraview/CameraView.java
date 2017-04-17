@@ -450,9 +450,9 @@ public class CameraView extends FrameLayout {
         }
 
         @Override
-        public void onFrameReceived(byte[] data, int fmt) {
+        public void onFrameReceived(byte[] data, int fmt, int width, int height) {
             for (Callback callback : mCallbacks) {
-                callback.onFrameReceived(data, fmt);
+                callback.onFrameReceived(data, fmt, width, height);
             }
         }
 
@@ -543,7 +543,7 @@ public class CameraView extends FrameLayout {
         public void onPictureTaken(CameraView cameraView, byte[] data) {
         }
 
-        public void onFrameReceived(byte[] data, int fmt) {
+        public void onFrameReceived(byte[] data, int fmt, int width, int height) {
         }
     }
 
